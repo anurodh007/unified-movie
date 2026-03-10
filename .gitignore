@@ -1,0 +1,36 @@
+# --- Django / Python ---
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Database ---
+db.sqlite3
+db.sqlite3-journal
+
+# --- Environment Secrets ---
+.env
+.venv
+env/
+venv/
+ENV/
+
+# --- Media & Static ---
+/media/
+/static/
+!/static/.gitkeep
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
+
+# --- HTTP ---
+*.http
+
+# --- Database info ---
+db.cnf
