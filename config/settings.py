@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'silk',
+    'drf_spectacular',
 
     # Apps
     'users',
@@ -146,7 +147,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ]
+    ],
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+# DRF_SPECTACULAR
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Unified Movie Platform API',
+    'DESCRIPTION': 'A unified social platform for users and movies API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 
