@@ -132,3 +132,7 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 # Media
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+
+
+# Setting user model
+AUTH_USER_MODEL = 'users.User'
