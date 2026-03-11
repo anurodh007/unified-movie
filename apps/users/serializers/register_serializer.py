@@ -1,3 +1,5 @@
+from django.contrib.auth import password_validation
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from users.models import User
 
@@ -17,6 +19,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'email': {'required': True, 'allow_blank': False,}
         }
+
+    def validate_password(self, value):
+        try:
+            password_validation.validate_password(value)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(list(e.messages))
+        return value
 
     def validate(self, data):
         pass1 = data.get('password')
