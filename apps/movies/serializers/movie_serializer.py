@@ -1,9 +1,12 @@
 from rest_framework import serializers
 
 from movies.models import Movie
+from movies.serializers.fields import TMDBImageField
 
 
 class MovieListSerializer(serializers.ModelSerializer):
+    poster_path = TMDBImageField()
+
     class Meta:
         model = Movie
         fields = [
@@ -17,6 +20,8 @@ class MovieListSerializer(serializers.ModelSerializer):
 
 class MovieDetailSerializer(serializers.ModelSerializer):
     genres = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
+    poster_path = TMDBImageField()
+    backdrop_path = TMDBImageField()
 
     class Meta:
         model = Movie
