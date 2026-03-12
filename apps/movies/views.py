@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from movies.models import Genre
+from movies.serializers.genre_serializer import GenreSerializer
+
+
+class GenreViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'tmdb_id'

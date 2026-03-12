@@ -31,6 +31,9 @@ urlpatterns = [
 
     # Users urls
     path('api/users/', include('users.urls')),
+
+    # Movies urls
+    path('api/movies/', include('movies.urls')),
 ]
 
 
