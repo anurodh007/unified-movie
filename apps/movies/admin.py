@@ -1,3 +1,12 @@
 from django.contrib import admin
+from movies.models import Genre, Movie
 
-# Register your models here.
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    ...
+
+
+@admin.register(Movie)
+class MovieAdmin(admin.ModelAdmin):
+    ...
