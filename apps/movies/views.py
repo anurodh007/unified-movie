@@ -4,9 +4,10 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 from django_filters.rest_framework import DjangoFilterBackend
 
-from movies.models import Genre, Movie
+from movies.models import Genre, Movie, StreamingPlatform
 from movies.serializers.genre_serializer import GenreSerializer
 from movies.serializers.movie_serializer import MovieListSerializer, MovieDetailSerializer
+from movies.serializers.streaming_platform_serializer import StreamingPlatformSerializer
 from movies.services.movie_service import get_or_create_movie, search_movies
 from movies.filters import MovieFilter
 
@@ -40,6 +41,8 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
 
         if hasattr(results, 'order_by'):
             results = self.filter_queryset(results)
+            if not results.query.order_by:
+                results = results.order_by('-popularity')
         
         page = self.paginate_queryset(results)
         if page is not None:
@@ -53,3 +56,12 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
         movie = get_or_create_movie(tmdb_id)
         serializer = self.get_serializer(movie)
         return Response(serializer.data)
+    
+
+"""
+ViewSet to list and retrieve streaming platforms
+"""
+class StreamingPlatformViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = StreamingPlatform.objects.order_by('tmdb_id')
+    serializer_class = StreamingPlatformSerializer
+    lookup_field = 'tmdb_id'
