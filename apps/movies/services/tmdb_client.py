@@ -31,3 +31,14 @@ def search_movies_tmdb(query):
     response = requests.get(endpoint, params=PARAMS)
     response.raise_for_status()
     return response.json()
+
+
+"""
+Retrieve streaming details for movie with tmdb_id
+"""
+def get_streaming_details(tmdb_id):
+    endpoint = f'{BASE_URL}/movie/{tmdb_id}/watch/providers'
+
+    response = requests.get(endpoint, params=PARAMS)
+    response.raise_for_status()
+    return response.json()

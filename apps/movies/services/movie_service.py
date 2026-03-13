@@ -1,6 +1,6 @@
 from django.db.models import Q
-from movies.models import Movie, Genre
-from movies.services.tmdb_client import get_movie_details, search_movies_tmdb
+from movies.models import Movie, Genre, StreamingPlatform
+from movies.services.tmdb_client import get_movie_details, search_movies_tmdb, get_streaming_details
 
 
 """
@@ -64,3 +64,21 @@ def search_movies(query):
             'poster_path': movie.get('poster_path') or None
         })
     return movies_list
+
+
+"""
+Retrieve streaming details for a movie
+"""
+def get_streaming_platforms(tmdb_id):
+    data = get_streaming_details(tmdb_id)
+    results = data.get('results', {})
+
+    us_data = results.get('US', {})
+
+    provider_ids = {
+        p.get('provider_id')
+        for category in ['rent', 'flatrate', 'buy']
+        for p in us_data.get(category, [])
+    }
+
+    return StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
