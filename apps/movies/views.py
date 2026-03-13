@@ -9,6 +9,7 @@ class GenreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     lookup_field = 'tmdb_id'
+    pagination_class = None
 
 
 class MovieViewSet(viewsets.ReadOnlyModelViewSet):

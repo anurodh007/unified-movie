@@ -7,7 +7,7 @@ urlpatterns = []
 
 
 router = DefaultRouter()
-router.register('', MovieViewSet, basename='movie')
 router.register('genres', GenreViewSet, basename='genre')
+router.register('', MovieViewSet, basename='movie')
 
 urlpatterns += router.urls
