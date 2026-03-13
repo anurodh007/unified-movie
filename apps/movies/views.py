@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -39,6 +39,11 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
         search_query = request.query_params.get('search', '')
         results = search_movies(search_query)
 
+        if results is None or not results:
+            return Response(
+                {'detail': f'Movies containing "{search_query}" not found.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         if hasattr(results, 'order_by'):
             results = self.filter_queryset(results)
             if not results.query.order_by:
@@ -52,8 +57,14 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(results, many=True)
         return Response(serializer.data)
     
-    def retrieve(self, request, tmdb_id=None):
+    def retrieve(self, request, *args, **kwargs):
+        tmdb_id = kwargs.get('tmdb_id')
         movie = get_or_create_movie(tmdb_id)
+        if movie is None:
+            return Response(
+                {'detail': f'Movie with TMDB ID {tmdb_id} not found or API unavailable.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         serializer = self.get_serializer(movie)
         return Response(serializer.data)
     
@@ -77,6 +88,12 @@ class StreamingListAPIView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         tmdb_id = kwargs.get('tmdb_id')
         platforms = get_streaming_platforms(tmdb_id)
+
+        if platforms is None:
+            return Response(
+                {'detail': f'Movie providers for movie {tmdb_id} not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         platforms = platforms.order_by('tmdb_id')
 
         page = self.paginate_queryset(platforms)

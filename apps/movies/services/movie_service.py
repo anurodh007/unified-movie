@@ -12,6 +12,8 @@ def get_or_create_movie(tmdb_id):
     if not movie:
         # Fetch from TMDB if movie doesn't exist
         data = get_movie_details(tmdb_id=tmdb_id)
+        if not data:
+            return None
 
         movie, _ = Movie.objects.update_or_create(
             tmdb_id=data.get('id'),
@@ -53,8 +55,10 @@ def search_movies(query):
         return movies
     
     data = search_movies_tmdb(query)
-    results = data.get('results', [])
+    if not data:
+        return None
 
+    results = data.get('results', [])
     movies_list = []
     for movie in results[:10]:
         movies_list.append({
@@ -71,8 +75,10 @@ Retrieve streaming details for a movie
 """
 def get_streaming_platforms(tmdb_id):
     data = get_streaming_details(tmdb_id)
-    results = data.get('results', {})
+    if not data:
+        return None
 
+    results = data.get('results', {})
     us_data = results.get('US', {})
 
     provider_ids = {

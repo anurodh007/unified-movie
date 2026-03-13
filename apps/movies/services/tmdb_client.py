@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import RequestException
 from config.env import env
 
 
@@ -16,9 +17,12 @@ GET movie details by tmdb_id
 def get_movie_details(tmdb_id):
     endpoint = f'{BASE_URL}/movie/{tmdb_id}'
 
-    response = requests.get(endpoint, params=PARAMS)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.get(endpoint, params=PARAMS)
+        response.raise_for_status()
+        return response.json()
+    except RequestException:
+        return None
 
 
 """
@@ -28,9 +32,12 @@ def search_movies_tmdb(query):
     endpoint = f'{BASE_URL}/search/movie'
     PARAMS['query'] = query
 
-    response = requests.get(endpoint, params=PARAMS)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.get(endpoint, params=PARAMS)
+        response.raise_for_status()
+        return response.json()
+    except RequestException:
+        return None
 
 
 """
@@ -39,6 +46,9 @@ Retrieve streaming details for movie with tmdb_id
 def get_streaming_details(tmdb_id):
     endpoint = f'{BASE_URL}/movie/{tmdb_id}/watch/providers'
 
-    response = requests.get(endpoint, params=PARAMS)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = requests.get(endpoint, params=PARAMS)
+        response.raise_for_status()
+        return response.json()
+    except RequestException:
+        return None
