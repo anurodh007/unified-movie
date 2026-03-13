@@ -1,5 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from movies.models import Genre, Movie
 from movies.serializers.genre_serializer import GenreSerializer
@@ -19,7 +22,14 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Movie.objects.prefetch_related('genres').order_by('-popularity')
     serializer_class = MovieListSerializer
     lookup_field = 'tmdb_id'
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter
+    ]
     filterset_class = MovieFilter
+    search_fields = ['title', 'overview']
+    ordering_fields = ['release_date', 'average_rating']
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
