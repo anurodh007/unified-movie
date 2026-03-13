@@ -1,9 +1,10 @@
+from django.db.models import Q
 from movies.models import Movie, Genre
-from movies.services.tmdb_client import get_movie_details
+from movies.services.tmdb_client import get_movie_details, search_movies_tmdb
 
 
 """
-Retrive movie from db if exists else API call to TMDB and store
+Retrieve movie from db if exists else API call to TMDB and store
 """
 def get_or_create_movie(tmdb_id):
     movie = Movie.objects.filter(tmdb_id=tmdb_id).first()
@@ -38,3 +39,28 @@ def get_or_create_movie(tmdb_id):
             movie.genres.set(genre_instances)
     
     return movie
+
+
+"""
+SEARCH movies in db if exists else API call to TMDB
+"""
+def search_movies(query):
+    movies = Movie.objects.filter(
+        Q(title__icontains=query) | Q(overview__icontains=query)
+    )
+    # Return queryset if exists 3 or more
+    if movies.count() >= 3:
+        return movies
+    
+    data = search_movies_tmdb(query)
+    results = data.get('results', [])
+
+    movies_list = []
+    for movie in results[:10]:
+        movies_list.append({
+            'tmdb_id': movie.get('id'),
+            'title': movie.get('title', ''),
+            'popularity': movie.get('popularity', 0),
+            'poster_path': movie.get('poster_path') or None
+        })
+    return movies_list

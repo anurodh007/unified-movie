@@ -19,3 +19,15 @@ def get_movie_details(tmdb_id):
     response = requests.get(endpoint, params=PARAMS)
     response.raise_for_status()
     return response.json()
+
+
+"""
+SEARCH movies by original, translated or alternative titles
+"""
+def search_movies_tmdb(query):
+    endpoint = f'{BASE_URL}/search/movie'
+    PARAMS['query'] = query
+
+    response = requests.get(endpoint, params=PARAMS)
+    response.raise_for_status()
+    return response.json()
