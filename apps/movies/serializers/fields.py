@@ -4,13 +4,20 @@ from config.env import env
 
 
 IMAGE_BASE_URL = env('TMDB_IMAGE_BASE_URL')
-IMAGE_SIZE = 'w500'
+DEFAULT_SIZE = 'w500'
 
 
 """
-Custom Field to build image path 
+Custom Generic Field to build image path 
 """
 @extend_schema_field({'type': 'string', 'format': 'uri'})
 class TMDBImageField(serializers.Field):
+    def __init__(self, size=DEFAULT_SIZE, **kwargs):
+        self.size = size
+        super().__init__(**kwargs)
+
     def to_representation(self, value):
-        return f'{IMAGE_BASE_URL}/{IMAGE_SIZE}{value}' if value else ''
+        if not value:
+            return ''
+        path = value if value.startswith('/') else f'/{value}'
+        return f'{IMAGE_BASE_URL}/{self.size}{path}'

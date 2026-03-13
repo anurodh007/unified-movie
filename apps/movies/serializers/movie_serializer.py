@@ -21,7 +21,7 @@ class MovieListSerializer(serializers.ModelSerializer):
 class MovieDetailSerializer(serializers.ModelSerializer):
     genres = serializers.SlugRelatedField(many=True, read_only=True, slug_field='name')
     poster_path = TMDBImageField()
-    backdrop_path = TMDBImageField()
+    backdrop_path = TMDBImageField(size='w1280')
 
     class Meta:
         model = Movie
