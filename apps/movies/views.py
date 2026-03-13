@@ -1,8 +1,10 @@
 from rest_framework import viewsets
+from rest_framework.response import Response
 
 from movies.models import Genre, Movie
 from movies.serializers.genre_serializer import GenreSerializer
 from movies.serializers.movie_serializer import MovieListSerializer, MovieDetailSerializer
+from movies.services.movie_service import get_or_create_movie
 
 
 class GenreViewSet(viewsets.ReadOnlyModelViewSet):
@@ -21,3 +23,8 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == 'retrieve':
             return MovieDetailSerializer
         return super().get_serializer_class()
+    
+    def retrieve(self, request, tmdb_id=None):
+        movie = get_or_create_movie(tmdb_id)
+        serializer = self.get_serializer(movie)
+        return Response(serializer.data)
