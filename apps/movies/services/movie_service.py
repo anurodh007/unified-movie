@@ -125,7 +125,12 @@ def get_streaming_platforms(tmdb_id):
 """
 GET trending movies by week
 """
-def get_trending_movies():
+def get_trending_movies(page_num):
+    cache_key = f'trending_movies_page_{page_num}'
+    results = cache.get(cache_key)
+    if results:
+        return results
+
     data = get_trending_movies_by_day()
     if not data:
         return None
@@ -140,5 +145,5 @@ def get_trending_movies():
             'popularity': item.get('popularity', 0),
             'poster_path': item.get('poster_path') or None
         })
-    
+    cache.set(cache_key, api_movies_list, 60 * 60 * 24)
     return api_movies_list

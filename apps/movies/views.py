@@ -117,7 +117,8 @@ APIView to list trending movies (day)
 """
 class TrendingMoviesAPIView(APIView):
     def get(self, request):
-        movies = get_trending_movies()
+        page_num = request.query_params.get('page', 1)
+        movies = get_trending_movies(page_num)
         if movies is None:
             return Response(
                 {'details': 'Error 404: Not Found'},
