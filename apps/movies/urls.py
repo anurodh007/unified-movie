@@ -4,12 +4,14 @@ from movies.views import (
     GenreViewSet,
     MovieViewSet,
     StreamingPlatformViewSet,
-    StreamingListAPIView
+    StreamingListAPIView,
+    TrendingMoviesAPIView
 )
 
 
 urlpatterns = [
     path('<tmdb_id>/streaming/', StreamingListAPIView.as_view(), name='movie-streaming'),
+    path('trending/', TrendingMoviesAPIView.as_view(), name='trending-movies'),
 ]
 
 

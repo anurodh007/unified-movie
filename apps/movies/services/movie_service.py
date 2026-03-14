@@ -2,7 +2,12 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.models import Q
 from movies.models import Movie, Genre, StreamingPlatform
-from movies.services.tmdb_client import get_movie_details, search_movies_tmdb, get_streaming_details
+from movies.services.tmdb_client import (
+    get_movie_details,
+    search_movies_tmdb,
+    get_streaming_details,
+    get_trending_movies_by_day
+)
 
 
 """
@@ -115,3 +120,25 @@ def get_streaming_platforms(tmdb_id):
     platforms = StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
     cache.set(cache_key, platforms, 60 * 60 * 24)
     return platforms
+
+
+"""
+GET trending movies by week
+"""
+def get_trending_movies():
+    data = get_trending_movies_by_day()
+    if not data:
+        return None
+    
+    results = data.get('results', [])
+    api_movies_list = []
+
+    for item in results:
+        api_movies_list.append({
+            'tmdb_id': item.get('id'),
+            'title': item.get('title', ''),
+            'popularity': item.get('popularity', 0),
+            'poster_path': item.get('poster_path') or None
+        })
+    
+    return api_movies_list

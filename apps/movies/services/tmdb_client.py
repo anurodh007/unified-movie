@@ -52,3 +52,17 @@ def get_streaming_details(tmdb_id):
         return response.json()
     except RequestException:
         return None
+
+
+"""
+GET trending movies
+"""
+def get_trending_movies_by_day():
+    endpoint = f'{BASE_URL}/trending/movie/day'
+
+    try:
+        response = requests.get(endpoint, params=PARAMS)
+        response.raise_for_status()
+        return response.json()
+    except RequestException:
+        return None

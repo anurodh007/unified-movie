@@ -1,6 +1,8 @@
 from rest_framework import viewsets, generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -8,7 +10,12 @@ from movies.models import Genre, Movie, StreamingPlatform
 from movies.serializers.genre_serializer import GenreSerializer
 from movies.serializers.movie_serializer import MovieListSerializer, MovieDetailSerializer
 from movies.serializers.streaming_platform_serializer import StreamingPlatformSerializer
-from movies.services.movie_service import get_or_create_movie, search_movies, get_streaming_platforms
+from movies.services.movie_service import (
+    get_or_create_movie,
+    search_movies,
+    get_streaming_platforms,
+    get_trending_movies
+)
 from movies.filters import MovieFilter
 
 
@@ -103,3 +110,21 @@ class StreamingListAPIView(generics.ListAPIView):
         
         serializer = self.get_serializer(platforms, many=True)
         return Response(serializer.data)
+    
+
+"""
+APIView to list trending movies (day)
+"""
+class TrendingMoviesAPIView(APIView):
+    def get(self, request):
+        movies = get_trending_movies()
+        if movies is None:
+            return Response(
+                {'details': 'Error 404: Not Found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        paginator = PageNumberPagination()
+        results_page = paginator.paginate_queryset(movies, request, view=self)
+        serializer = MovieListSerializer(results_page, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
