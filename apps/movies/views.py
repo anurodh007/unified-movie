@@ -44,6 +44,8 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):
     
     def list(self, request, *args, **kwargs):
         search_query = request.query_params.get('search', '')
+        if not search_query:
+            return super().list(request, *args, **kwargs)
         results = search_movies(search_query)
 
         if results is None or not results:

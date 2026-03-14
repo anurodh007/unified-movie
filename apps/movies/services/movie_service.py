@@ -15,10 +15,10 @@ Retrieve movie from db if exists else API call to TMDB and store
 """
 def get_or_create_movie(tmdb_id):
     cache_key = f'movie_details_{tmdb_id}'
-    movie = cache.get(cache_key)
+    movie_id = cache.get(cache_key)
 
-    if movie:
-        return movie
+    if movie_id:
+        return Movie.objects.get(pk=movie_id)
     
     movie = Movie.objects.filter(tmdb_id=tmdb_id).first()
 
@@ -54,7 +54,7 @@ def get_or_create_movie(tmdb_id):
                     genre_instances.append(genre_obj)
                 movie.genres.set(genre_instances)
 
-    cache.set(cache_key, movie, 60 * 60 * 6)
+    cache.set(cache_key, movie.pk, 60 * 60 * 6)
     return movie
 
 
@@ -73,7 +73,7 @@ def search_movies(query):
         Q(title__icontains=query) | Q(overview__icontains=query)
     )
     # Return queryset if exists 3 or more
-    if movies.count() >= 3:
+    if len(movies) >= 3:
         cache.set(cache_key, movies, 60 * 30)
         return movies
     
@@ -100,9 +100,9 @@ Retrieve streaming details for a movie
 """
 def get_streaming_platforms(tmdb_id):
     cache_key = f'streaming_details_of_{tmdb_id}'
-    cached_data = cache.get(cache_key)
-    if cached_data:
-        return cached_data
+    ids = cache.get(cache_key)
+    if ids:
+        return StreamingPlatform.objects.filter(tmdb_id__in=ids)
 
     data = get_streaming_details(tmdb_id)
     if not data:
@@ -117,9 +117,8 @@ def get_streaming_platforms(tmdb_id):
         for p in us_data.get(category, [])
     }
 
-    platforms = StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
-    cache.set(cache_key, platforms, 60 * 60 * 24)
-    return platforms
+    cache.set(cache_key, list(provider_ids), 60 * 60 * 24)
+    return StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
 
 
 """
