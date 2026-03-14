@@ -57,11 +57,19 @@ def get_or_create_movie(tmdb_id):
 SEARCH movies in db if exists else API call to TMDB
 """
 def search_movies(query):
+    query = query.strip()
+    cache_key = f'search_movies_{query}'
+    movies = cache.get(cache_key)
+
+    if movies:
+        return movies
+
     movies = Movie.objects.filter(
         Q(title__icontains=query) | Q(overview__icontains=query)
     )
     # Return queryset if exists 3 or more
     if movies.count() >= 3:
+        cache.set(cache_key, movies, 60 * 30)
         return movies
     
     data = search_movies_tmdb(query)
@@ -77,6 +85,8 @@ def search_movies(query):
             'popularity': movie.get('popularity', 0),
             'poster_path': movie.get('poster_path') or None
         })
+
+    cache.set(cache_key, movies_list, 60 * 30)
     return movies_list
 
 
