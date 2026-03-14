@@ -94,6 +94,11 @@ def search_movies(query):
 Retrieve streaming details for a movie
 """
 def get_streaming_platforms(tmdb_id):
+    cache_key = f'streaming_details_of_{tmdb_id}'
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     data = get_streaming_details(tmdb_id)
     if not data:
         return None
@@ -107,4 +112,6 @@ def get_streaming_platforms(tmdb_id):
         for p in us_data.get(category, [])
     }
 
-    return StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
+    platforms = StreamingPlatform.objects.filter(tmdb_id__in=list(provider_ids))
+    cache.set(cache_key, platforms, 60 * 60 * 24)
+    return platforms
