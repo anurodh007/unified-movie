@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # Apps
     'users',
     'movies',
+    'reviews',
 ]
 
 MIDDLEWARE = [
