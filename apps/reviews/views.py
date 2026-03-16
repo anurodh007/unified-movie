@@ -42,12 +42,16 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
 
 
 """
-API View for Review-Details
+API View for Movie Review-Details
 """
 class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.select_related('user', 'movie')
     serializer_class = ReviewSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        tmdb_id = self.kwargs.get('tmdb_id')
+        return self.queryset.filter(movie__tmdb_id=tmdb_id)
 
 
 """
