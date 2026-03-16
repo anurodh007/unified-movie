@@ -64,3 +64,16 @@ class UserReviewListAPIView(generics.ListAPIView):
     def get_queryset(self):
         username = self.kwargs.get('username')
         return self.queryset.filter(user__username=username)
+    
+
+"""
+API View for User Review-details
+"""
+class UserReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.select_related('user', 'movie')
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return self.queryset.filter(user__username=username)

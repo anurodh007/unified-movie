@@ -2,7 +2,8 @@ from django.urls import path
 from users import views
 
 from reviews.views import (
-    UserReviewListAPIView
+    UserReviewListAPIView,
+     UserReviewDetailAPIView
 )
 
 
@@ -11,4 +12,5 @@ urlpatterns = [
 
     # Endpoints for user reviews
     path('<str:username>/reviews/', UserReviewListAPIView.as_view(), name='user-reviews-list'),
+    path('<str:username>/reviews/<int:pk>/', UserReviewDetailAPIView.as_view()),
 ]
