@@ -7,7 +7,10 @@ from movies.views import (
     StreamingListAPIView,
     TrendingMoviesAPIView
 )
-from reviews.views import ReviewListCreateAPIView
+from reviews.views import (
+    ReviewListCreateAPIView,
+    ReviewDetailAPIView,
+)
 
 
 urlpatterns = [
@@ -15,7 +18,8 @@ urlpatterns = [
     path('trending/', TrendingMoviesAPIView.as_view(), name='trending-movies'),
 
     # Endpoints for movie reviews
-    path('<tmdb_id>/reviews/', ReviewListCreateAPIView.as_view(), name='movie-reviews'),
+    path('<tmdb_id>/reviews/', ReviewListCreateAPIView.as_view(), name='movie-reviews-list'),
+    path('<tmdb_id>/reviews/<int:pk>/', ReviewDetailAPIView.as_view(), name='review-detail'),
 ]
 
 

@@ -8,6 +8,8 @@ from reviews.serializers.review_serializer import ReviewSerializer
 
 from movies.models import Movie
 
+from core.permissions import IsOwnerOrReadOnly
+
 
 class ReviewListCreateAPIView(generics.ListCreateAPIView):
     queryset = Review.objects.select_related('user', 'movie').order_by('-created_at')
@@ -22,3 +24,9 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
         tmdb_id = self.kwargs.get('tmdb_id')
         movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
         serializer.save(user=self.request.user, movie=movie)
+
+
+class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.select_related('user', 'movie')
+    serializer_class = ReviewSerializer
+    permission_classes = [IsOwnerOrReadOnly]
