@@ -48,3 +48,15 @@ class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.select_related('user', 'movie')
     serializer_class = ReviewSerializer
     permission_classes = [IsOwnerOrReadOnly]
+
+
+"""
+User Reviews List API View
+"""
+class UserReviewListAPIView(generics.ListAPIView):
+    queryset = Review.objects.select_related('user', 'movie').order_by('-created_at')
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return self.queryset.filter(user__username=username)
