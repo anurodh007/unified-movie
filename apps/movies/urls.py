@@ -7,6 +7,7 @@ from movies.views import (
     StreamingListAPIView,
     TrendingMoviesAPIView
 )
+
 from reviews.views import (
     ReviewListCreateAPIView,
     ReviewDetailAPIView,
