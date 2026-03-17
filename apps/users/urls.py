@@ -3,7 +3,7 @@ from users import views
 
 from reviews.views import (
     UserReviewListAPIView,
-     UserReviewDetailAPIView
+    UserReviewDetailAPIView
 )
 
 
