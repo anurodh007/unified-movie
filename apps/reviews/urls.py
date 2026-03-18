@@ -3,7 +3,8 @@ from django.urls import path
 from reviews.views import (
     ReviewListCreateAPIView,
     ReviewDetailAPIView,
-    CommentListCreateAPIView
+    CommentListCreateAPIView,
+    CommentDetailAPIView
 )
 
 
@@ -14,4 +15,5 @@ urlpatterns = [
 
     # Endpoints for review comments
     path('<int:review_id>/comments/', CommentListCreateAPIView.as_view(), name='review-comments'),
+    path('<int:review_id>/comments/<int:comment_id>/', CommentDetailAPIView.as_view(), name='comment-detail'),
 ]

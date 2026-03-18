@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from reviews.models import Review, ReviewComment
 from reviews.serializers.review_serializer import ReviewSerializer
 from reviews.serializers.comment_serializer import CommentSerializer
+from reviews.permissions import IsOwnerOrReviewOwner
 
 from movies.models import Movie
 
@@ -98,3 +99,17 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(user=self.request.user, review=review)
+
+
+"""
+API View to delete comments by owner or review-owner
+"""
+class CommentDetailAPIView(generics.RetrieveDestroyAPIView):
+    queryset = ReviewComment.objects.select_related('user', 'review')
+    serializer_class = CommentSerializer
+    permission_classes = [IsOwnerOrReviewOwner]
+    lookup_url_kwarg = 'comment_id'
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return self.queryset.filter(review__id=review_id)
