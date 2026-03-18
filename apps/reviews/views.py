@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from reviews.models import Review
+from reviews.models import Review, ReviewComment
 from reviews.serializers.review_serializer import ReviewSerializer
+from reviews.serializers.comment_serializer import CommentSerializer
 
 from movies.models import Movie
 
@@ -79,3 +80,21 @@ class UserReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         username = self.kwargs.get('username')
         return self.queryset.filter(user__username=username)
+    
+
+"""
+API View to list-create review comments
+"""
+class CommentListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ReviewComment.objects.select_related('user', 'review').order_by('created_at')
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return self.queryset.filter(review__id=review_id)
+
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(user=self.request.user, review=review)
