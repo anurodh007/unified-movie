@@ -48,6 +48,7 @@ class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.select_related('user', 'movie')
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    lookup_url_kwarg = 'review_id'
 
     def get_queryset(self):
         tmdb_id = self.kwargs.get('tmdb_id')
@@ -73,6 +74,7 @@ class UserReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.select_related('user', 'movie')
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    lookup_url_kwarg = 'review_id'
 
     def get_queryset(self):
         username = self.kwargs.get('username')

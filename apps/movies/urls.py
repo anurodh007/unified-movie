@@ -20,7 +20,7 @@ urlpatterns = [
 
     # Endpoints for movie reviews
     path('<tmdb_id>/reviews/', ReviewListCreateAPIView.as_view(), name='movie-reviews-list'),
-    path('<tmdb_id>/reviews/<int:pk>/', ReviewDetailAPIView.as_view(), name='review-detail'),
+    path('<tmdb_id>/reviews/<int:review_id>/', ReviewDetailAPIView.as_view(), name='review-detail'),
 ]
 
 

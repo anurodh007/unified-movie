@@ -12,5 +12,5 @@ urlpatterns = [
 
     # Endpoints for user reviews
     path('<str:username>/reviews/', UserReviewListAPIView.as_view(), name='user-reviews-list'),
-    path('<str:username>/reviews/<int:pk>/', UserReviewDetailAPIView.as_view()),
+    path('<str:username>/reviews/<int:review_id>/', UserReviewDetailAPIView.as_view()),
 ]
