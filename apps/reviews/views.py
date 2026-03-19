@@ -119,3 +119,17 @@ class LikeListCreateAPIView(generics.ListCreateAPIView):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(user=self.request.user, review=review)
+
+    
+"""
+API View to delete likes
+"""
+class LikeDetailAPIView(generics.RetrieveDestroyAPIView):
+    queryset = ReviewLike.objects.select_related('user', 'review')
+    serializer_class = LikeSerializer
+    permission_classes = [IsOwnerOrReadOnly]
+    lookup_url_kwarg = 'like_id'
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return self.queryset.filter(review__id=review_id)
