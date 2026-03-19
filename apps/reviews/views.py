@@ -1,9 +1,6 @@
 from django.shortcuts import get_object_or_404
-from django.db.utils import IntegrityError
 
 from rest_framework import generics
-from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from reviews.models import Review, ReviewComment, ReviewLike
@@ -32,15 +29,6 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
         tmdb_id = self.kwargs.get('tmdb_id')
         movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
         serializer.save(user=self.request.user, movie=movie)
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError:
-            return Response(
-                {'detail': 'Only one review per user per movie is allowed.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 
 """
@@ -131,12 +119,3 @@ class LikeListCreateAPIView(generics.ListCreateAPIView):
         review_id = self.kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         serializer.save(user=self.request.user, review=review)
-
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except IntegrityError:
-            return Response(
-                {'detail': 'Only one like per user per review is allowed'},
-                status=status.HTTP_400_BAD_REQUEST
-            )

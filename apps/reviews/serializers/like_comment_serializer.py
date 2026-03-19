@@ -21,5 +21,16 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewLike
         fields = [
-            'user'
+            'id',
+            'user',
         ]
+
+    def validate(self, data):
+        user = self.context['request'].user
+        review_id = self.context['view'].kwargs.get('review_id')
+
+        if ReviewLike.objects.filter(user=user, review_id=review_id).exists():
+            raise serializers.ValidationError({
+                'detail': 'You have already liked this review.'
+            })
+        return data
