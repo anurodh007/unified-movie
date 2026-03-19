@@ -1,5 +1,6 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from reviews.models import ReviewComment, ReviewLike
+from reviews.models import Review, ReviewComment, ReviewLike
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -21,7 +22,6 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewLike
         fields = [
-            'id',
             'user',
         ]
 
@@ -34,3 +34,9 @@ class LikeSerializer(serializers.ModelSerializer):
                 'detail': 'You have already liked this review.'
             })
         return data
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        review_id = self.context['view'].kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        return ReviewLike.objects.create(user=user, review=review)

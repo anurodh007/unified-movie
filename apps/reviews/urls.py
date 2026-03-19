@@ -5,8 +5,7 @@ from reviews.views import (
     ReviewDetailAPIView,
     CommentListCreateAPIView,
     CommentDetailAPIView,
-    LikeListCreateAPIView,
-    LikeDetailAPIView
+    LikeToggleAPIView,
 )
 
 
@@ -20,6 +19,5 @@ urlpatterns = [
     path('<int:review_id>/comments/<int:comment_id>/', CommentDetailAPIView.as_view(), name='comment-detail'),
 
     # Endpoints for review likes
-    path('<int:review_id>/likes/', LikeListCreateAPIView.as_view(), name='review-likes'),
-    path('<int:review_id>/likes/<int:like_id>/', LikeDetailAPIView.as_view(), name='like-detail'),
+    path('<int:review_id>/likes/', LikeToggleAPIView.as_view(), name='review-likes'),
 ]

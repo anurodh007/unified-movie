@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import generics
+from rest_framework import generics, status
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from reviews.models import Review, ReviewComment, ReviewLike
@@ -104,32 +105,19 @@ class CommentDetailAPIView(generics.RetrieveDestroyAPIView):
     
 
 """
-API View to list-create review likes
+API View to like-unlike reviews
 """
-class LikeListCreateAPIView(generics.ListCreateAPIView):
+class LikeToggleAPIView(generics.ListCreateAPIView):
     queryset = ReviewLike.objects.select_related('user', 'review').order_by('created_at')
     serializer_class = LikeSerializer
-    permission_classes = [IsNotReviewOwner]
+    permission_classes = [IsNotReviewOwner, IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         return self.queryset.filter(review__id=review_id)
-    
-    def perform_create(self, serializer):
-        review_id = self.kwargs.get('review_id')
-        review = get_object_or_404(Review, id=review_id)
-        serializer.save(user=self.request.user, review=review)
 
-    
-"""
-API View to delete likes
-"""
-class LikeDetailAPIView(generics.RetrieveDestroyAPIView):
-    queryset = ReviewLike.objects.select_related('user', 'review')
-    serializer_class = LikeSerializer
-    permission_classes = [IsOwnerOrReadOnly]
-    lookup_url_kwarg = 'like_id'
-
-    def get_queryset(self):
-        review_id = self.kwargs.get('review_id')
-        return self.queryset.filter(review__id=review_id)
+    def delete(self, request, *args, **kwargs):
+        review_id = kwargs.get('review_id')
+        like = get_object_or_404(ReviewLike, review__id=review_id, user=request.user)
+        like.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
