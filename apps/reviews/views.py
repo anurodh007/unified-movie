@@ -6,10 +6,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from reviews.models import Review, ReviewComment
+from reviews.models import Review, ReviewComment, ReviewLike
 from reviews.serializers.review_serializer import ReviewSerializer
-from reviews.serializers.comment_serializer import CommentSerializer
-from reviews.permissions import IsOwnerOrReviewOwner
+from reviews.serializers.like_comment_serializer import CommentSerializer, LikeSerializer
+from reviews.permissions import IsOwnerOrReviewOwner, IsNotReviewOwner
 
 from movies.models import Movie
 
@@ -113,3 +113,30 @@ class CommentDetailAPIView(generics.RetrieveDestroyAPIView):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         return self.queryset.filter(review__id=review_id)
+    
+
+"""
+API View to list-create review likes
+"""
+class LikeListCreateAPIView(generics.ListCreateAPIView):
+    queryset = ReviewLike.objects.select_related('user', 'review').order_by('created_at')
+    serializer_class = LikeSerializer
+    permission_classes = [IsNotReviewOwner]
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id')
+        return self.queryset.filter(review__id=review_id)
+    
+    def perform_create(self, serializer):
+        review_id = self.kwargs.get('review_id')
+        review = get_object_or_404(Review, id=review_id)
+        serializer.save(user=self.request.user, review=review)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError:
+            return Response(
+                {'detail': 'Only one like per user per review is allowed'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
