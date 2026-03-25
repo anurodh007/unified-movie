@@ -118,6 +118,8 @@ class StreamingListAPIView(generics.ListAPIView):
 APIView to list trending movies (day)
 """
 class TrendingMoviesAPIView(APIView):
+    serializer_class = MovieListSerializer
+
     def get(self, request):
         page_num = request.query_params.get('page', 1)
         movies = get_trending_movies(page_num)
