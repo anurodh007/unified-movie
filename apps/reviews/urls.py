@@ -9,6 +9,8 @@ from reviews.views import (
 )
 
 
+app_name = 'reviews'
+
 urlpatterns = [
     # Endpoints for movie-reviews
     path('', ReviewListCreateAPIView.as_view(), name='movie-reviews-list'),

@@ -38,7 +38,7 @@ API View for Movie Review-Details
 class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.select_related('user', 'movie')
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
     lookup_url_kwarg = 'review_id'
 
     def get_queryset(self):
@@ -52,20 +52,6 @@ User Reviews List API View
 class UserReviewListAPIView(generics.ListAPIView):
     queryset = Review.objects.select_related('user', 'movie').order_by('-created_at')
     serializer_class = ReviewSerializer
-
-    def get_queryset(self):
-        username = self.kwargs.get('username')
-        return self.queryset.filter(user__username=username)
-    
-
-"""
-API View for User Review-details
-"""
-class UserReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.select_related('user', 'movie')
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    lookup_url_kwarg = 'review_id'
 
     def get_queryset(self):
         username = self.kwargs.get('username')

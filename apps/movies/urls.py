@@ -14,7 +14,7 @@ urlpatterns = [
     path('trending/', TrendingMoviesAPIView.as_view(), name='trending-movies'),
 
     # Endpoints for movie reviews
-    path('<tmdb_id>/reviews/', include('reviews.urls')),
+    path('<tmdb_id>/reviews/', include('reviews.urls', namespace='reviews')),
 ]
 
 
