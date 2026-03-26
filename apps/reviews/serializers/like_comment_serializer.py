@@ -1,19 +1,34 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 from reviews.models import Review, ReviewComment, ReviewLike
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.SerializerMethodField()
     user = serializers.ReadOnlyField(source='user.username')
 
     class Meta:
         model = ReviewComment
         fields = [
+            'url',
             'id',
             'user',
             'comment_text',
             'created_at'
         ]
+
+    def get_url(self, obj):
+        request = self.context.get('request')
+        return reverse(
+            viewname='reviews:comment-detail',
+            kwargs={
+                'tmdb_id': obj.review.movie.tmdb_id,
+                'review_id': obj.review_id,
+                'comment_id': obj.pk
+            },
+            request=request
+        )
 
 
 class LikeSerializer(serializers.ModelSerializer):
