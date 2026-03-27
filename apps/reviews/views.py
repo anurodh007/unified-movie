@@ -6,7 +6,11 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from reviews.models import Review, ReviewComment, ReviewLike
 from reviews.serializers.review_serializer import ReviewSerializer
-from reviews.serializers.like_comment_serializer import CommentSerializer, LikeSerializer
+from reviews.serializers.like_comment_serializer import (
+    CommentSerializer,
+    UserCommentSerializer,
+    LikeSerializer
+)
 from reviews.permissions import IsOwnerOrReviewOwner, IsNotReviewOwner
 
 from movies.models import Movie
@@ -88,6 +92,18 @@ class CommentDetailAPIView(generics.RetrieveDestroyAPIView):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id')
         return self.queryset.filter(review__id=review_id)
+    
+
+"""
+User Comments List API View
+"""
+class UserCommentListAPIView(generics.ListAPIView):
+    queryset = ReviewComment.objects.select_related('user', 'review__movie').order_by('-created_at')
+    serializer_class = UserCommentSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return self.queryset.filter(user__username=username)
     
 
 """

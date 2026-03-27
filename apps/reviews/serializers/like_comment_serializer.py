@@ -20,6 +20,9 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_url(self, obj):
         request = self.context.get('request')
+        if not request or not obj.review or not obj.review.movie:
+            return None
+
         return reverse(
             viewname='reviews:comment-detail',
             kwargs={
@@ -29,6 +32,19 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
             },
             request=request
         )
+    
+
+class UserCommentSerializer(CommentSerializer):
+    movie_title = serializers.ReadOnlyField(source='review.movie.title')
+    movie_id = serializers.ReadOnlyField(source='review.movie.tmdb_id')
+    review_id = serializers.ReadOnlyField(source='review.id')
+
+    class Meta(CommentSerializer.Meta):
+        fields = CommentSerializer.Meta.fields + [
+            'movie_title',
+            'movie_id',
+            'review_id'
+        ]
 
 
 class LikeSerializer(serializers.ModelSerializer):
