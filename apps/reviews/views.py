@@ -9,7 +9,8 @@ from reviews.serializers.review_serializer import ReviewSerializer
 from reviews.serializers.like_comment_serializer import (
     CommentSerializer,
     UserCommentSerializer,
-    LikeSerializer
+    LikeSerializer,
+    UserLikeSerializer
 )
 from reviews.permissions import IsOwnerOrReviewOwner, IsNotReviewOwner
 
@@ -123,3 +124,15 @@ class LikeToggleAPIView(generics.ListCreateAPIView):
         like = get_object_or_404(ReviewLike, review__id=review_id, user=request.user)
         like.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+"""
+User likes list API View
+"""
+class UserLikeListAPIView(generics.ListAPIView):
+    queryset = ReviewLike.objects.select_related('user', 'review__movie')
+    serializer_class = UserLikeSerializer
+
+    def get_queryset(self):
+        username = self.kwargs.get('username')
+        return self.queryset.filter(user__username=username)

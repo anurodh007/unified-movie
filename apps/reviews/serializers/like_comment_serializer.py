@@ -71,3 +71,35 @@ class LikeSerializer(serializers.ModelSerializer):
         review_id = self.context['view'].kwargs.get('review_id')
         review = get_object_or_404(Review, id=review_id)
         return ReviewLike.objects.create(user=user, review=review)
+    
+
+class UserLikeSerializer(serializers.HyperlinkedModelSerializer):
+    url = serializers.SerializerMethodField()
+    movie_id = serializers.ReadOnlyField(source='review.movie.tmdb_id')
+    movie_title = serializers.ReadOnlyField(source='review.movie.title')
+    review_id = serializers.ReadOnlyField(source='review.id')
+    review_text = serializers.ReadOnlyField(source='review.review_text')
+
+    class Meta:
+        model = ReviewLike
+        fields = [
+            'url',
+            'movie_id',
+            'movie_title',
+            'review_id',
+            'review_text',
+        ]
+
+    def get_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        
+        return reverse(
+            viewname='reviews:review-likes',
+            kwargs={
+                'tmdb_id': obj.review.movie.tmdb_id,
+                'review_id': obj.review_id
+            },
+            request=request
+        )
