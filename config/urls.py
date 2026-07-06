@@ -34,6 +34,9 @@ urlpatterns = [
 
     # Movies urls
     path('api/movies/', include('movies.urls')),
+
+    # Watchlist urls
+    path('api/watchlist/', include('watchlist.urls')),
 ]
 
 
