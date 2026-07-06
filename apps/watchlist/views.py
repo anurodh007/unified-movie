@@ -11,7 +11,7 @@ from movies.services.movie_service import get_or_create_movie
 Watchlist List-Create API View
 """
 class WatchlistListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Watchlist.objects.select_related('user', 'movie')
+    queryset = Watchlist.objects.select_related('user', 'movie').order_by('-created_at')
     serializer_class = WatchlistSerializer
     permission_classes = [IsAuthenticated]
 
@@ -22,3 +22,17 @@ class WatchlistListCreateAPIView(generics.ListCreateAPIView):
         tmdb_id = serializer.validated_data.pop('tmdb_id')
         movie = get_or_create_movie(tmdb_id)
         serializer.save(user=self.request.user, movie=movie)
+
+
+"""
+Watchlist Delete A Movie API View
+"""
+class WatchlistDestroyAPIView(generics.DestroyAPIView):
+    queryset = Watchlist.objects.select_related('user', 'movie')
+    lookup_url_kwarg = 'tmdb_id'
+    
+    def get_object(self):
+        return self.queryset.get(
+            user=self.request.user,
+            movie__tmdb_id=self.kwargs.get('tmdb_id')
+        )
