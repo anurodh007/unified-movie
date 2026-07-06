@@ -16,6 +16,8 @@ from reviews.permissions import IsOwnerOrReviewOwner, IsNotReviewOwner
 
 from movies.models import Movie
 
+from watchlist.models import Watchlist
+
 from core.permissions import IsOwnerOrReadOnly
 
 
@@ -35,6 +37,7 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
         tmdb_id = self.kwargs.get('tmdb_id')
         movie = get_object_or_404(Movie, tmdb_id=tmdb_id)
         serializer.save(user=self.request.user, movie=movie)
+        Watchlist.objects.filter(user=self.request.user, movie=movie).delete()
 
 
 """
