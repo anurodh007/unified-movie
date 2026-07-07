@@ -7,9 +7,14 @@ from reviews.views import (
     UserLikeListAPIView
 )
 
+from watchlist.views import UserWatchlistListAPIView
+
 
 urlpatterns = [
     path('<str:username>/', views.UserDetailView.as_view(), name='user_detail'),
+
+    # Endpoint for user watchlist
+    path('<str:username>/watchlist/', UserWatchlistListAPIView.as_view(), name='user-watchlist-list'),
 
     # Endpoint for user reviews
     path('<str:username>/reviews/', UserReviewListAPIView.as_view(), name='user-reviews-list'),

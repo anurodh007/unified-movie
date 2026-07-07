@@ -1,5 +1,5 @@
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from watchlist.models import Watchlist
 from watchlist.serializers import WatchlistSerializer
@@ -36,3 +36,15 @@ class WatchlistDestroyAPIView(generics.DestroyAPIView):
             user=self.request.user,
             movie__tmdb_id=self.kwargs.get('tmdb_id')
         )
+    
+
+"""
+User Watchlist List API View
+"""
+class UserWatchlistListAPIView(generics.ListAPIView):
+    queryset = Watchlist.objects.select_related('user', 'movie').order_by('-created_at')
+    serializer_class = WatchlistSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return self.queryset.filter(user__username=self.kwargs.get('username'))
