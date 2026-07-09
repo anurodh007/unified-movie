@@ -1,19 +1,15 @@
 from reviews.models import Review
 from watchlist.models import Watchlist
 
-from .similarity import calculate_similarity
 
-
-def rank_filter_recommendations(user, limit=10):
+def rank_filter_recommendations(user, scores, limit=10):
     """
     Ranks similarity scores from highest to lowest.
     Filters out movies already reviewed or in watchlist.
     Returns top N recommendations.
     """
 
-    scores = calculate_similarity(user)
-
-    # Sort by similarity score
+    # Sort the similarity score
     sorted_scores = dict(sorted(scores.items(), key=lambda item: item[1]['score'], reverse=True))
 
     # Get reviewed and watchlisted IDs
@@ -29,12 +25,17 @@ def rank_filter_recommendations(user, limit=10):
 
     recommendations = []
 
-    for item in sorted_scores:
-        if item['movie'].tmdb_id in excluded_ids:
+    for tmdb_id, item in sorted_scores.items():
+        if int(tmdb_id) in excluded_ids:
             continue
         
-        recommendations.append(item)
-        if len(recommendations == limit):
+        recommendations.append({
+            'tmdb_id': int(tmdb_id),
+            'movie': item['movie'],
+            'score': item['score']
+        })
+        
+        if len(recommendations) == limit:
             break
 
     return recommendations

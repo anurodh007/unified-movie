@@ -2,11 +2,8 @@ from django.core.cache import cache
 import numpy as np
 from numpy.linalg import norm
 
-from .user_vectors import build_user_vector
-from .movie_vectors import build_all_movie_vectors
 
-
-def calculate_similarity(user):
+def calculate_similarity(user, user_vector, movie_vectors):
     """
     Calculate similarity scores between user and movie
     """
@@ -17,10 +14,8 @@ def calculate_similarity(user):
     if scores is not None:
         return scores
     
-    user_vector = build_user_vector(user)
     user_norm = norm(user_vector)
 
-    movie_vectors = build_all_movie_vectors()
     scores = {}
 
     for tmdb_id, data in movie_vectors.items():
