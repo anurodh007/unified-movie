@@ -37,6 +37,9 @@ urlpatterns = [
 
     # Watchlist urls
     path('api/watchlist/', include('watchlist.urls')),
+
+    # Recommendation urls
+    path('api/recommendations/', include('recommendations.urls')),
 ]
 
 
