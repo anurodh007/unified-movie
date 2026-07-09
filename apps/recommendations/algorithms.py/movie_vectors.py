@@ -1,3 +1,4 @@
+from django.core.cache import cache
 import numpy as np
 from movies.models import Movie, Genre
 
@@ -33,6 +34,12 @@ def build_all_movie_vectors():
     Builds vector for each movie
     """
     
+    cache_key = 'movie_vectors'
+
+    movie_vectors = cache.get(cache_key)
+    if movie_vectors is not None:
+        return movie_vectors
+
     master_genres = get_master_genre_list()
 
     movie_vectors = {}
@@ -40,6 +47,10 @@ def build_all_movie_vectors():
     movies = Movie.objects.prefetch_related('genres')
 
     for movie in movies:
-        movie_vectors[movie.tmdb_id] = build_movie_vector(movie, master_genres)
+        movie_vectors[movie.tmdb_id] = {
+            'movie': movie,
+            'vector': build_movie_vector(movie, master_genres)
+        }
 
+    cache.set(cache_key, movie_vectors, 60 * 60)
     return movie_vectors
