@@ -1,5 +1,6 @@
 from django.core.cache import cache
 import numpy as np
+from numpy.linalg import norm
 from movies.models import Movie, Genre
 
 
@@ -47,10 +48,13 @@ def build_all_movie_vectors():
     movies = Movie.objects.prefetch_related('genres')
 
     for movie in movies:
+        vector = build_movie_vector(movie, master_genres)
+
         movie_vectors[movie.tmdb_id] = {
             'movie': movie,
-            'vector': build_movie_vector(movie, master_genres)
+            'vector': vector,
+            'norm': norm(vector),
         }
 
-    cache.set(cache_key, movie_vectors, 60 * 60)
+    cache.set(cache_key, movie_vectors, 60 * 60 * 24)
     return movie_vectors

@@ -1,6 +1,6 @@
 import numpy as np
 from reviews.models import Review
-from movie_vectors import (
+from .movie_vectors import (
     get_master_genre_list,
     build_movie_vector
 )
