@@ -1,12 +1,9 @@
 from django.core.cache import cache
 
-from .user_matrix import build_user_matrix
-from .similarity import calculate_similarity
-
 CACHE_TIMEOUT = 60 * 60 * 12
 
 
-def predict_movie_ratings(user, k=5):
+def predict_movie_ratings(user, user_matrix, similarity_scores, k=5):
     """
     Predict how much user likes a movie they haven't rated.
 
@@ -20,9 +17,6 @@ def predict_movie_ratings(user, k=5):
     predicted_ratings = cache.get(cache_key)
     if predicted_ratings is not None:
         return predicted_ratings
-
-    user_matrix = build_user_matrix()
-    similarity_scores = calculate_similarity(user)
 
     # Sort users by similarity scores
     sorted_scores = sorted(similarity_scores.items(), key=lambda item: item[1], reverse=True)[:k]
@@ -52,6 +46,8 @@ def predict_movie_ratings(user, k=5):
 
         for i in range(k):
             row = user_index[sorted_scores[i][0]]
+            if row is None:
+                continue
 
             rating = matrix[row][col]
             if rating == 0:

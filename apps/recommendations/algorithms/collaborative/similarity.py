@@ -3,12 +3,10 @@ from numpy.linalg import norm
 
 from django.core.cache import cache
 
-from .user_matrix import build_user_matrix
-
 CACHE_TIMEOUT = 60 * 60 * 12
 
 
-def calculate_similarity(user):
+def calculate_similarity(user, user_matrix):
     """
     Calculates user-to-user cosine similarity
 
@@ -23,12 +21,10 @@ def calculate_similarity(user):
     if scores is not None:
         return scores
 
-    user_matrix = build_user_matrix()
-
     matrix = user_matrix.get('matrix')
     user_index = user_matrix.get('user_index')
 
-    reverse_index = {idx: user_id for idx, user_id in user_index.items()}
+    reverse_index = {idx: user_id for user_id, idx in user_index.items()}
 
     current_user_index = user_index.get(user.id)
     if current_user_index is None:
@@ -52,7 +48,7 @@ def calculate_similarity(user):
             similarity = np.dot(current_user_vector, row) \
                             / (norm_current * norm_row)
             
-        user_id = reverse_index.get(idx)
+        user_id = reverse_index[idx]
         scores[user_id] = similarity
 
     cache.set(cache_key, scores, CACHE_TIMEOUT)

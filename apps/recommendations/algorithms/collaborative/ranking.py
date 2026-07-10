@@ -1,14 +1,10 @@
-from .prediction import predict_movie_ratings
-
 from movies.models import Movie
 
 
-def rank_recommendations(user, limit=10):
+def rank_recommendations(user, predicted_ratings, limit=10):
     """
     Sort prediction scores and return N recommendations
     """
-
-    predicted_ratings = predict_movie_ratings(user, k=3)
 
     # Sort predicted ratings
     sorted_ratings = sorted(predicted_ratings.items(), key=lambda item: item[1], reverse=True)
