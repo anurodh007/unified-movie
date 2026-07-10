@@ -4,7 +4,7 @@ from ..algorithms.content_based.similarity import calculate_similarity
 from ..algorithms.content_based.ranking import rank_filter_recommendations
 
 
-def get_recommendations(user, limit=10):
+def get_recommendations_content(user, limit=10):
     """
     Build movie vectors and user vector
     Compute similarity score

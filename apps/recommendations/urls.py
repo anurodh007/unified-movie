@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import RecommendationAPIView
+from .views import RecommendationAPIView, CollaborativeAPIView
 
 
 urlpatterns = [
-    path('', RecommendationAPIView.as_view(), name='movie-recommendations'),
+    path('content-based/', RecommendationAPIView.as_view(), name='content-recommendations'),
+    path('collaborative/', CollaborativeAPIView.as_view(), name='collab-recommendations'),
 ]

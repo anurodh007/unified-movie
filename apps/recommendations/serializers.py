@@ -8,3 +8,11 @@ class RecommendationSerializer(serializers.Serializer):
     similarity_score = serializers.FloatField(source='score')
     average_rating = serializers.FloatField(source='movie.average_rating')
     poster_path = TMDBImageField(source='movie.poster_path')
+
+
+class CollaborativeSerializer(serializers.Serializer):
+    tmdb_id = serializers.IntegerField()
+    title = serializers.CharField(source='movie.title')
+    predicted_rating = serializers.FloatField()
+    average_rating = serializers.FloatField(source='movie.average_rating')
+    poster_path = TMDBImageField(source='movie.poster_path')
