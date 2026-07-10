@@ -29,7 +29,8 @@ def rank_recommendations(user, predicted_ratings, limit=10):
         recommendations.append({
             'tmdb_id': int(tmdb_id),
             'movie': movie,
-            'predicted_rating': rating
+            'score': rating,
+            'recommendation_type': 'collaborative'
         })
 
         if len(recommendations) == limit:

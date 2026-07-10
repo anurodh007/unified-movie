@@ -32,7 +32,8 @@ def rank_filter_recommendations(user, scores, limit=10):
         recommendations.append({
             'tmdb_id': int(tmdb_id),
             'movie': item['movie'],
-            'score': item['score']
+            'score': item['score'],
+            'recommendation_type': 'content_based'
         })
         
         if len(recommendations) == limit:
