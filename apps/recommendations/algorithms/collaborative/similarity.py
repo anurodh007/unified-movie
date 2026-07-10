@@ -11,6 +11,11 @@ CACHE_TIMEOUT = 60 * 60 * 12
 def calculate_similarity(user):
     """
     Calculates user-to-user cosine similarity
+
+    Returns
+    {
+        user_id: similarity,
+    }
     """
 
     cache_key = f'user_similarity_{user.id}'
