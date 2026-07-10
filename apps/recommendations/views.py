@@ -4,7 +4,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import RecommendationSerializer
-from .services import get_recommendations
+from .services.content_based import get_recommendations
 
 
 class RecommendationAPIView(APIView):

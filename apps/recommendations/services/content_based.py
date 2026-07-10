@@ -1,7 +1,7 @@
-from .algorithms.content_based.user_vectors import build_user_vector
-from .algorithms.content_based.movie_vectors import build_all_movie_vectors
-from .algorithms.content_based.similarity import calculate_similarity
-from .algorithms.content_based.ranking import rank_filter_recommendations
+from ..algorithms.content_based.user_vectors import build_user_vector
+from ..algorithms.content_based.movie_vectors import build_all_movie_vectors
+from ..algorithms.content_based.similarity import calculate_similarity
+from ..algorithms.content_based.ranking import rank_filter_recommendations
 
 
 def get_recommendations(user, limit=10):
