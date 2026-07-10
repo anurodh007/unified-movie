@@ -9,6 +9,11 @@ CACHE_TIMEOUT = 60 * 60 * 12
 def predict_movie_ratings(user, k=5):
     """
     Predict how much user likes a movie they haven't rated.
+
+    Returns
+    {
+        tmdb_id: predicted_rating
+    }
     """
 
     cache_key = f'predicted_ratings_{user.id}'
