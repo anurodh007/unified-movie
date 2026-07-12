@@ -42,6 +42,35 @@ def make_tokens(user):
 CORE FIXTURES
 """
 
+# Factory that creates user instances
+@pytest.fixture
+def user_factory(db):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    def _create(username='testuser', password='StrongPass123!', email='test@example.com', **kwargs):
+        return User.objects.create_user(username=username, password=password, email=email, **kwargs)
+    
+    return _create
+
+
+# Single test user
+@pytest.fixture
+def user(user_factory):
+    return user_factory(username='alice', email='alice@example.com')
+
+
+# Another test user for ownership/permission tests
+@pytest.fixture
+def other_user(user_factory):
+    return user_factory(username='bob', email='bob@example.com')
+
+
+# Staff or Superuser
+@pytest.fixture
+def admin_user(user_factory):
+    return user_factory(username='admin', email='admin@example.com', is_staff=True, is_superuser=True)
+
 
 
 
