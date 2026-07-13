@@ -66,3 +66,26 @@ class TestMovieModel:
         assert movie.genres.count() == 2
         assert g1 in movie.genres.all()
         assert g2 in movie.genres.all()
+
+
+
+"""
+StreamingPlatform Model
+"""
+@pytest.mark.django_db
+class TestStreamingPlatformModel:
+
+    def test_str_representation_returns_platform_name(self, streaming_platform_factory):
+        platform = streaming_platform_factory(tmdb_id=20, name='Prime Video')
+        assert str(platform) == 'Prime Video'
+
+    def test_unique_tmdb_id(self, streaming_platform_factory):
+        streaming_platform_factory(tmdb_id=8, name='Netflix')
+        from movies.models import StreamingPlatform
+        with pytest.raises(IntegrityError):
+            StreamingPlatform.objects.create(tmdb_id=8, name='Duplicate')
+
+    def test_logo_path_blank(self, db):
+        from movies.models import StreamingPlatform
+        platform = StreamingPlatform.objects.create(tmdb_id='30', name='Hulu')
+        assert platform.logo_path == ''
