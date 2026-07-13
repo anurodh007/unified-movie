@@ -30,6 +30,7 @@ Watchlist Delete A Movie API View
 class WatchlistDestroyAPIView(generics.DestroyAPIView):
     queryset = Watchlist.objects.select_related('user', 'movie')
     lookup_url_kwarg = 'tmdb_id'
+    permission_classes = [IsAuthenticated]
     
     def get_object(self):
         return self.queryset.get(
