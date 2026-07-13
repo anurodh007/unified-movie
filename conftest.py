@@ -72,6 +72,27 @@ def admin_user(user_factory):
     return user_factory(username='admin', email='admin@example.com', is_staff=True, is_superuser=True)
 
 
+# Unauthenticated DRF APIClient
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+# APIClient already authenticated as user via JWT
+@pytest.fixture
+def auth_client(api_client, user):
+    access, _ = make_tokens(user)
+    api_client.credentials(HTTP_AUTHORIZATION=f'Bearer {access}')
+    return api_client
+
+# Fresh APIClient authenticated as other_user
+@pytest.fixture
+def other_auth_client(other_user):
+    client = APIClient()
+    access, _ = make_tokens(other_user)
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {access}')
+    return client
+
+
 
 
 
