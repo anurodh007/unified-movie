@@ -82,7 +82,7 @@ DOMAIN FIXTURES
 # Factory that creates Genre instances
 @pytest.fixture
 def genre_factory(db):
-    from apps.movies.models import Genre
+    from movies.models import Genre
 
     def _create(tmdb_id=28, name='Action'):
         genre, _ = Genre.objects.get_or_create(
