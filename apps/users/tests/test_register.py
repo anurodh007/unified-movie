@@ -9,7 +9,6 @@ POST /api/auth/register/
 import pytest
 from rest_framework import status
 
-
 REGISTER_URL = '/api/auth/register/'
 
 VALID_REGISTRATION = {
