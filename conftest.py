@@ -131,6 +131,48 @@ def movie(movie_factory):
     return movie_factory(tmdb_id=550, title='Fight Club')
 
 
+# Factory for StreamingPlatform Model
+@pytest.fixture
+def streaming_platform_factory(db):
+    from movies.models import StreamingPlatform
+
+    def _create(tmdb_id=8, name='Netflix', logo_path='/logo.png'):
+        platform, _ = StreamingPlatform.objects.get_or_create(
+            tmdb_id=tmdb_id, defaults={'name': name, 'logo_path': logo_path}
+        )
+        return platform
+    
+    return _create
+
+
+# Factory for Review Model
+@pytest.fixture
+def review_factory(db):
+    from reviews.models import Review
+
+    def _create(user, movie, review_text='Nice film!', rating=7):
+        review, _ = Review.objects.get_or_create(user=user, movie=movie, review_text=review_text, rating=rating)
+        return review
+    
+    return _create
+
+@pytest.fixture
+def review(review_factory):
+    return review_factory(user=user, movie=movie)
+
+
+# Factory for Watchlist Model
+@pytest.fixture
+def watchlist_factory(db):
+    from watchlist.models import Watchlist
+
+    def _create(user, movie):
+        wl, _ = Watchlist.objects.get_or_create(user=user, movie=movie)
+        return wl
+    
+    return _create
+
+
 
 
 
