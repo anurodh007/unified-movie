@@ -1,5 +1,5 @@
 """
-Testing Genre, Movie serializers
+Testing Genre, Movie serializers and TMDBImageField()
 
 Covers:
     - Valid data is serialized
@@ -9,6 +9,7 @@ Covers:
 import pytest
 from movies.serializers.genre_serializer import GenreSerializer
 from movies.serializers.movie_serializer import MovieListSerializer, MovieDetailSerializer
+from movies.serializers.fields import TMDBImageField
 
 
 """
@@ -69,3 +70,26 @@ class TestMovieDetailSerializer:
         serializer = MovieDetailSerializer(movie)
         assert 'genres' in serializer.data
         assert 'Action' in serializer.data['genres']
+
+
+"""
+TMDBImageField
+"""
+class TestTMDBImageField:
+
+    def test_builds_full_url(self):
+        field = TMDBImageField()
+        result = field.to_representation('/abc.jpg')
+        assert 'image.tmdb.org' in result
+        assert 'w500' in result
+        assert '/abc.jpg' in result
+
+    def test_custom_size_is_applied(self):
+        field = TMDBImageField(size='w1280')
+        result = field.to_representation('/abc.jpg')
+        assert 'w1280' in result
+
+    def test_empty_value_returns_empty_path(self):
+        field = TMDBImageField()
+        assert field.to_representation(value='') == ''
+        assert field.to_representation(value=None) == ''
