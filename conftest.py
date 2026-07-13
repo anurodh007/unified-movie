@@ -103,7 +103,7 @@ def movie_factory(db):
     from movies.models import Movie
     _counter = [1]
 
-    def _create(tmdb_id=None, title='Test Movie', popularity=100.0, genres=None, **kwargs):
+    def _create(tmdb_id=None, title='Test Movie', popularity=100.0, average_rating=0, vote_count=0, genres=None, **kwargs):
         if tmdb_id is None:
             tmdb_id = _counter[0] * 1000
             _counter[0] += 1
@@ -114,8 +114,8 @@ def movie_factory(db):
                 'title': title,
                 'overview': 'A Test Movie',
                 'popularity': popularity,
-                'average_rating': 7.5,
-                'vote_count': 10,
+                'average_rating': average_rating,
+                'vote_count': vote_count,
                 **kwargs 
             }
         )
