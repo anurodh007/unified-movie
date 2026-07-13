@@ -28,11 +28,12 @@ class TestReviewModel:
         assert str(review) == 'anurodh - Fight Club'
 
     def test_unique_user_movie_review_constraint(self, user_factory, movie_factory, review_factory):
+        from reviews.models import Review
         user = user_factory(username='alice', email='alice@gmail.com')
         movie = movie_factory(tmdb_id=19542, title='The Red Shoes')
         review = review_factory(user=user, movie=movie, review_text='Her EYES. Her EYES', rating=10)
         with pytest.raises(IntegrityError):
-            review_factory(user=user, movie=movie, review_text='Damn!', rating=10)
+            Review.objects.create(user=user, movie=movie, review_text='Damn!', rating=10)
 
     def test_created_updated_at_auto_set(self, user_factory, movie_factory, review_factory):
         user = user_factory(username='bob', email='bob@mail.com')
