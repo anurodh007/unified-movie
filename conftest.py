@@ -97,6 +97,40 @@ def genre(genre_factory):
     return genre_factory()
 
 
+# Factory that creates movie instances
+@pytest.fixture
+def movie_factory(db):
+    from movies.models import Movie
+    _counter = [1]
+
+    def _create(tmdb_id=None, title='Test Movie', popularity=100.0, genres=None, **kwargs):
+        if tmdb_id is None:
+            tmdb_id = _counter[0] * 1000
+            _counter[0] += 1
+        
+        movie, _ = Movie.objects.get_or_create(
+            tmdb_id=tmdb_id,
+            defaults={
+                'title': title,
+                'overview': 'A Test Movie',
+                'popularity': popularity,
+                'average_rating': 7.5,
+                'vote_count': 10,
+                **kwargs 
+            }
+        )
+
+        if genres is not None:
+            movie.genres.set(genres)
+        return movie
+    
+    return _create
+
+@pytest.fixture
+def movie(movie_factory):
+    return movie_factory(tmdb_id=550, title='Fight Club')
+
+
 
 
 
