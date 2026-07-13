@@ -76,5 +76,30 @@ def admin_user(user_factory):
 
 
 """
+DOMAIN FIXTURES
+"""
+
+# Factory that creates Genre instances
+@pytest.fixture
+def genre_factory(db):
+    from apps.movies.models import Genre
+
+    def _create(tmdb_id=28, name='Action'):
+        genre, _ = Genre.objects.get_or_create(
+            tmdb_id=tmdb_id, defaults={'name': name}
+        )
+        return genre
+    
+    return _create
+
+@pytest.fixture
+def genre(genre_factory):
+    return genre_factory()
+
+
+
+
+
+"""
 CONSTANTS
 """
