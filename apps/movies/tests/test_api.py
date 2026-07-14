@@ -111,3 +111,33 @@ class TestMovieListAPI:
         response = api_client.get(MOVIES_LIST_URL, {'genres': 'Unknown'})
         assert response.status_code == status.HTTP_200_OK
         assert len(response.data['results']) == 0
+
+
+
+"""
+Movie Detail API
+"""
+@pytest.mark.django_db
+class TestMovieDetailAPI:
+
+    def test_retrieve_existing_movie_from_local_db(self, api_client, movie_factory):
+        movie_factory(tmdb_id=550, title='Fight Club')
+        response = api_client.get(movie_detail_url(550))
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_retrieve_fetches_from_tmdb_when_not_local(self, api_client, fake_movie_detail):
+        with patch('movies.services.movie_service.cache') as mock_cache, \
+             patch('movies.services.movie_service.get_movie_details', return_value=fake_movie_detail) as mock_tmdb:
+            
+            mock_cache.get.return_value = None
+            response = api_client.get(movie_detail_url(550))
+            assert response.status_code == status.HTTP_200_OK
+            mock_tmdb.assert_called_once_with(tmdb_id=550)
+
+    def test_retrieve_nonexistent_tmdb_id_returns_404(self, api_client):
+        with patch('movies.services.movie_service.cache') as mock_cache, \
+             patch('movies.services.movie_service.get_movie_details', return_value=None):
+            
+            mock_cache.get.return_value = None
+            response = api_client.get(movie_detail_url(999999999999999))
+        assert response.status_code == status.HTTP_404_NOT_FOUND

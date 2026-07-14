@@ -14,6 +14,8 @@ from movies.services.tmdb_client import (
 Retrieve movie from db if exists else API call to TMDB and store
 """
 def get_or_create_movie(tmdb_id):
+    tmdb_id = int(tmdb_id)
+
     cache_key = f'movie_details_{tmdb_id}'
     movie_id = cache.get(cache_key)
 
