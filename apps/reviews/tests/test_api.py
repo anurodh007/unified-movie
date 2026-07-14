@@ -7,13 +7,14 @@ GET/POST                /api/movies/<int:tmdb_id>/reviews/
 GET/PUT/PATCH/DELETE    /api/movies/<int:tmdb_id>/reviews/<int:review_id>/
 
 GET/POST                /api/movies/<int:tmdb_id>/reviews/<int:review_id>/comments/
-GET/PUT/PATCH/DELETE    /api/movies/<int:tmdb_id>/reviews/<int:review_id>/comments/<int:comment_id>/
+GET/DELETE    /api/movies/<int:tmdb_id>/reviews/<int:review_id>/comments/<int:comment_id>/
 
 GET/POST/DELETE         /api/movies/<int:tmdb_id>/reviews/<int:review_id>/likes/
 """
 
 import pytest
 from rest_framework import status
+from reviews.models import ReviewComment, ReviewLike
 from watchlist.models import Watchlist
 
 # URL Helpers
@@ -140,3 +141,86 @@ class TestReviewDetailAPI:
     def test_nonexistent_review_returns_404(self, api_client, movie):
         response = api_client.get(review_detail_url(movie.tmdb_id, 999))
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+
+"""
+Comments API
+"""
+@pytest.mark.django_db
+class TestCommentsAPI:
+
+    def test_anonymous_can_list_comments(self, api_client, user, movie, review):
+        ReviewComment.objects.create(user=user, review=review, comment_text='First Comment')
+        response = api_client.get(comments_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_200_OK
+        results = response.data['results']
+        assert results[0]['comment_text'] == 'First Comment'
+
+    def test_authenticated_user_can_create_comment(self, auth_client, movie, review):
+        data = {'comment_text': 'Haha, Nice Review.'}
+        response = auth_client.post(comments_url(movie.tmdb_id, review.pk), data, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['comment_text'] == 'Haha, Nice Review.'
+
+    def test_anonymous_user_cannot_create_comment(self, api_client, movie, review):
+        data = {'comment_text': 'Unknown User'}
+        response = api_client.post(comments_url(movie.tmdb_id, review.pk), data, format='json')
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_comment_owner_can_delete_comment(self, auth_client, user, movie, review):
+        comment = ReviewComment.objects.create(user=user, review=review, comment_text='Owner Comment')
+        response = auth_client.delete(comment_detail_url(movie.tmdb_id, review.pk, comment.pk))
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ReviewComment.objects.filter(user=user, review=review).exists()
+
+    def test_review_owner_can_delete_comment(self, auth_client, user, other_user, movie, review_factory):
+        review = review_factory(user=user, movie=movie, review_text='Users Review', rating=8)
+        comment = ReviewComment.objects.create(user=other_user, review=review, comment_text='Other Users Comment')
+        response = auth_client.delete(comment_detail_url(movie.tmdb_id, review.pk, comment.pk))
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ReviewComment.objects.filter(user=other_user, review=review).exists()
+
+    def test_unrelated_user_cannot_delete_comment(self, other_auth_client, user, movie, review, user_factory):
+        third = user_factory(username='third', email='third@mail.com')
+        comment = ReviewComment.objects.create(user=third, review=review, comment_text='Third Users Comment')
+        response = other_auth_client.delete(comment_detail_url(movie.tmdb_id, review.pk, comment.pk))
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert ReviewComment.objects.filter(user=third, review=review).exists()
+
+
+
+"""
+Likes API
+"""
+@pytest.mark.django_db
+class TestLikesAPI:
+
+    def test_anonymous_user_can_list_likes(self, api_client, movie, review):
+        response = api_client.get(likes_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_anonymous_user_cannot_like_review(self, api_client, movie, review):
+        response = api_client.post(likes_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_non_owner_can_like_review(self, other_auth_client, other_user, movie, review):
+        response = other_auth_client.post(likes_url(movie.tmdb_id, review.pk), {}, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.data['user'] == other_user.username
+
+    def test_review_owner_cannot_like_review(self, auth_client, movie, review):
+        response = auth_client.post(likes_url(movie.tmdb_id, review.pk), {}, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_duplicate_likes_not_allowed(self, other_auth_client, other_user, movie, review):
+        like = ReviewLike.objects.create(user=other_user, review=review)
+        response = other_auth_client.post(likes_url(movie.tmdb_id, review.pk), {}, format='json')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_unlike_deletes_like(self, other_auth_client, other_user, movie, review):
+        like = ReviewLike.objects.create(user=other_user, review=review)
+        assert ReviewLike.objects.filter(user=other_user, review=review).exists()
+        response = other_auth_client.delete(likes_url(movie.tmdb_id, review.pk), {}, format='json')
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not ReviewLike.objects.filter(user=other_user, review=review).exists()
