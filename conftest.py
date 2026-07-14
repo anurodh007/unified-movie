@@ -200,3 +200,58 @@ def watchlist_factory(db):
 """
 CONSTANTS
 """
+
+@pytest.fixture
+def fake_movie_detail():
+    return {
+        'id': 550,
+        'title': 'Fight Club',
+        'overview': 'An insomniac office worker and a devil-may-care soap maker...',
+        'release_date': '1999-10-15',
+        'runtime': 139,
+        'popularity': 63.869,
+        'poster_path': '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+        'backdrop_path': '/87hTDiay2N2qWyX4Ds7ybXi9h8I.jpg',
+        'genres': [
+            {'id': 18, 'name': 'Drama'},
+            {'id': 53, 'name': 'Thriller'},
+        ],
+    }
+
+@pytest.fixture
+def fake_search_response():
+    return {
+        'results': [
+            {
+                'id': 550,
+                'title': 'Fight Club',
+                'popularity': 63.869,
+                'poster_path': '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+            },
+            {
+                'id': 551,
+                'title': 'Fight Club 2',
+                'popularity': 10.0,
+                'poster_path': None,
+            },
+        ]
+    }
+
+@pytest.fixture
+def fake_trending_response():
+    return {
+        'results': [
+            {'id': 100, 'title': 'Trending Movie', 'popularity': 200.0,
+            'poster_path': '/abc.jpg'},
+        ]
+    }
+
+@pytest.fixture
+def fake_streaming_response():
+    return  {
+        'results': {
+            'US': {
+                'flatrate': [{'provider_id': 8, 'provider_name': 'Netflix'}],
+            }
+        }
+    }
