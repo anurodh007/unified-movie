@@ -1,4 +1,5 @@
 from rest_framework import generics
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from watchlist.models import Watchlist
@@ -33,7 +34,8 @@ class WatchlistDestroyAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
-        return self.queryset.get(
+        return get_object_or_404(
+            self.queryset,
             user=self.request.user,
             movie__tmdb_id=self.kwargs.get('tmdb_id')
         )
