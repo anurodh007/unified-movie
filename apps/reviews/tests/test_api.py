@@ -103,3 +103,40 @@ class TestReviewListAPI:
         data = {'rating': 10}
         response = auth_client.post(reviews_list_url(movie.tmdb_id), data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+    
+"""
+Review Detail API
+"""
+@pytest.mark.django_db
+class TestReviewDetailAPI:
+
+    def test_retrieve_review(self, api_client, movie, review):
+        response = api_client.get(review_detail_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['id'] == review.pk
+
+    def test_owner_can_update_review(self, auth_client, movie, review):
+        data = {'review_text': 'Updated Text', 'rating': 7}
+        response = auth_client.put(review_detail_url(movie.tmdb_id, review.pk), data, format='json')
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['review_text'] == 'Updated Text'
+
+    def test_owner_can_delete_review(self, auth_client, movie, review):
+        response = auth_client.delete(review_detail_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_non_owner_cannot_update_review(self, auth_client, other_user, movie, review_factory):
+        review = review_factory(user=other_user, movie=movie, review_text='Other Users Review', rating=7)
+        response = auth_client.patch(review_detail_url(movie.tmdb_id, review.pk), {'review_text': 'Users Review'}, format='json')
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_non_owner_cannot_delete_review(self, auth_client, other_user, movie, review_factory):
+        review = review_factory(user=other_user, movie=movie, review_text='Other Users Review', rating=7)
+        response = auth_client.delete(review_detail_url(movie.tmdb_id, review.pk))
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_nonexistent_review_returns_404(self, api_client, movie):
+        response = api_client.get(review_detail_url(movie.tmdb_id, 999))
+        assert response.status_code == status.HTTP_404_NOT_FOUND

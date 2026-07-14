@@ -178,7 +178,7 @@ def review_factory(db):
     return _create
 
 @pytest.fixture
-def review(review_factory):
+def review(review_factory, user, movie):
     return review_factory(user=user, movie=movie)
 
 
