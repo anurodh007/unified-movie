@@ -12,10 +12,8 @@ GET  /api/movies/trending/              - trending movies
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
-from django.urls import reverse
+from unittest.mock import patch
 from rest_framework import status
-from rest_framework.test import APIClient
 
 # URL Helpers
 MOVIES_LIST_URL = '/api/movies/'
@@ -140,4 +138,68 @@ class TestMovieDetailAPI:
             
             mock_cache.get.return_value = None
             response = api_client.get(movie_detail_url(999999999999999))
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+
+"""
+Genre API
+"""
+@pytest.mark.django_db
+class TestGenreAPI:
+
+    def test_genre_list_returns_200(self, api_client):
+        response = api_client.get(GENRES_URL)
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_genre_detail_by_tmdb_id(self, api_client, genre_factory):
+        genre_factory(tmdb_id=28, name='Action')
+        response = api_client.get(genre_detail_url(28))
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['name'] == 'Action'
+
+    def test_invalid_genre_tmdb_id_returns_404(self, api_client):
+        response = api_client.get(genre_detail_url(99999))
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+
+"""
+Streaming Platform API
+"""
+@pytest.mark.django_db
+class TestStreamingAPI:
+
+    def test_streaming_returns_platforms_when_found(self, api_client, fake_streaming_response):
+        with patch(
+            'movies.services.movie_service.get_streaming_details',
+             return_value=fake_streaming_response
+        ):
+            response = api_client.get(streaming_url(550))
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_streaming_returns_404_when_not_found(self, api_client):
+        with patch('movies.views.get_streaming_platforms', return_value=None):
+            response = api_client.get(streaming_url(999))
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+    
+"""
+Trending API
+"""
+@pytest.mark.django_db
+class TestTrendingAPI:
+
+    def test_trending_returns_200(self, api_client):
+        fake_trending = [
+            {'tmdb_id': 550, 'title': 'Fight Club', 'popularity': 58.5, 'poster_path': None,}
+        ]
+        with patch('movies.views.get_trending_movies', return_value=fake_trending):
+            response = api_client.get(TRENDING_URL)
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_trending_returns_404_on_api_failure(self, api_client):
+        with patch('movies.views.get_trending_movies', return_value=None):
+            response = api_client.get(TRENDING_URL)
         assert response.status_code == status.HTTP_404_NOT_FOUND
