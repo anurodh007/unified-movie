@@ -1,0 +1,52 @@
+[run]
+branch = True
+
+source =
+    apps
+    core
+
+omit =
+    # Tests
+    **/tests/*
+    **/test_*.py
+    **/tests.py
+    **/conftest.py
+
+    # Django migrations
+    **/migrations/*
+
+    # Django generated files
+    **/__pycache__/*
+    *.pyc
+
+    # Project configuration
+    manage.py
+    config/*
+    core/settings.py
+    core/urls.py
+    core/asgi.py
+    core/wsgi.py
+
+    # Django admin registrations
+    **/admin.py
+
+
+[report]
+exclude_lines =
+    pragma: no cover
+
+    def __repr__
+
+    if self\.debug
+
+    raise AssertionError
+    raise NotImplementedError
+
+    if 0:
+
+    if __name__ == .__main__.:
+
+    if TYPE_CHECKING:
+
+show_missing = True
+skip_empty = True
