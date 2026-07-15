@@ -52,3 +52,59 @@ class TestBuildUserMatrix:
             mock_cache.get.return_value = fake
             result = build_user_matrix()
         assert result == fake
+
+
+
+"""
+calculate_similarity
+"""
+class TestCollabSimilarity:
+
+    TARGET_CACHE_STRING = 'recommendations.algorithms.collaborative.similarity.cache'
+
+    def test_user_with_no_ratings_returns_empty(self):
+        user = MagicMock()
+        user.id = 999
+        user_matrix = {
+            'matrix': np.array([[1, 2], [3, 4]]),
+            'user_index': {1: 0, 2: 1}
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            result = calculate_similarity(user, user_matrix)
+        assert result == {}
+
+    def test_self_excluded_from_scores(self):
+        user = MagicMock()
+        user.id = 1
+        user_matrix = {
+            'matrix': np.array([[7, 8], [6, 9]]),
+            'user_index': {1: 0, 2: 1}
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            result = calculate_similarity(user, user_matrix)
+        assert user.id not in result
+
+    def test_identical_ratings_gives_max_similarity(self):
+        user = MagicMock()
+        user.id = 11
+        user_matrix = {
+            'matrix': np.array([[7, 8, 9], [8, 7, 9]]),
+            'user_index': {11: 0, 22: 1}
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            result = calculate_similarity(user, user_matrix)
+        assert result[22] == pytest.approx(0.99, abs=1e-2)
+
+    def test_cache_hit_returns_cached(self, user):
+        fake = {
+            11: 0.85,
+            12: 0.91,
+            13: 0.68
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = fake
+            result = calculate_similarity(user, {})
+        assert result == fake
