@@ -116,3 +116,74 @@ class TestBuildUserVector:
             mock_cache.get.return_value = None
             vector = build_user_vector(user)
         assert np.all(vector == 0)
+
+
+
+"""
+calculate_similarity
+"""
+class TestContentBasedSimilarity:
+
+    TARGET_CACHE_STRING = 'recommendations.algorithms.content_based.similarity.cache'
+
+    def test_identical_vectors_score_1(self):
+        user = MagicMock()
+        user.id = 25
+        user_vector = np.array([1.0, 0.0, 1.0])
+        movie_vectors = {
+            101: {
+                'movie': MagicMock(),
+                'vector': np.array([1.0, 0.0, 1.0]),
+                'norm': float(np.linalg.norm([1.0, 0.0, 1.0])),
+            }
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            scores = calculate_similarity(user, user_vector, movie_vectors)
+        assert scores[101]['score'] == pytest.approx(1.0)
+
+    def test_orthogonal_vectors_score_0(self):
+        user = MagicMock()
+        user.id = 10
+        user_vector = np.array([1.0, 0.0, 0.0])
+        movie_vectors = {
+            201: {
+                'movie': MagicMock(),
+                'vector': np.array([0.0, 1.0, 0.0]),
+                'norm': 1.0
+            }
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            scores = calculate_similarity(user, user_vector, movie_vectors)
+        assert scores[201]['score'] == pytest.approx(0.0)
+
+    def test_zero_user_vector_scores_0(self):
+        user = MagicMock()
+        user.id = 5
+        user_vector = np.array([0.0, 0.0, 0.0])
+        movie_vectors = {
+            301: {
+                'movie': MagicMock(),
+                'vector': np.array([1.0, 1.0, 0.0]),
+                'norm': float(np.linalg.norm([1.0, 1.0, 0.0]))
+            }
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            scores = calculate_similarity(user, user_vector, movie_vectors)
+        assert scores[301]['score'] == pytest.approx(0.0)
+
+    def test_cache_hit_skips_computation(self):
+        user = MagicMock()
+        user.id = 7
+        fake = {
+            401: {
+                'movie': MagicMock(),
+                'score': 0.9
+            }
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = fake
+            result = calculate_similarity(user, np.zeros(3), {})
+        assert result == fake
