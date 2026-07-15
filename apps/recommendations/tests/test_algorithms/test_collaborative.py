@@ -108,3 +108,49 @@ class TestCollabSimilarity:
             mock_cache.get.return_value = fake
             result = calculate_similarity(user, {})
         assert result == fake
+
+
+
+"""
+predict_movie_ratings
+"""
+class TestPredictMovieRatings:
+
+    TARGET_CACHE_STRING = 'recommendations.algorithms.collaborative.prediction.cache'
+
+    def test_user_with_no_rating_returns_empty(self):
+        user = MagicMock()
+        user.id = 99
+        user_matrix = {
+            'matrix': np.array([[5, 0], [8, 4]]),
+            'user_index': {1: 0, 2: 1},
+            'movie_index': {101: 0, 201: 1}
+        }
+        with patch(self.TARGET_CACHE_STRING) as  mock_cache:
+            mock_cache.get.return_value = None
+            result = predict_movie_ratings(user, user_matrix, {})
+        assert result == {}
+
+    def test_predicts_unrated_movie(self):
+        user = MagicMock()
+        user.id = 1
+        user_matrix = {
+            'matrix': np.array([[8, 0], [7, 9]]),
+            'user_index': {1: 0, 2: 1},
+            'movie_index': {101: 0, 201: 1}
+        }
+        similarity_scores = {2: 0.62}
+        with patch(self.TARGET_CACHE_STRING)as mock_cache:
+            mock_cache.get.return_value = None
+            result = predict_movie_ratings(user, user_matrix, similarity_scores)
+        assert 201 in result
+        assert result[201] > 0
+
+    def test_cache_hit_returns_cached(self, user):
+        fake = {
+            101: 7.89
+        }
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = fake
+            result = predict_movie_ratings(user, {}, {})
+        assert result == fake

@@ -44,8 +44,8 @@ def predict_movie_ratings(user, user_matrix, similarity_scores, k=5):
         sum_product = 0
         sum_similarity = 0
 
-        for i in range(k):
-            row = user_index[sorted_scores[i][0]]
+        for user_id, similarity in sorted_scores:
+            row = user_index.get(user_id)
             if row is None:
                 continue
 
@@ -53,7 +53,6 @@ def predict_movie_ratings(user, user_matrix, similarity_scores, k=5):
             if rating == 0:
                 continue
 
-            similarity = sorted_scores[i][1]
             if similarity <= 0:
                 continue
 
