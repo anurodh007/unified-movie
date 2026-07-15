@@ -5,14 +5,10 @@ User Authentication --> Watchlist --> Reviews --> Recommendation
 """
 
 import pytest
-from django.test import TestCase
-from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from movies.models import Movie, Genre
-
-User = get_user_model()
+from movies.models import Movie
 
 def reviews_url(tmdb_id):
     return f'/api/movies/{tmdb_id}/reviews/'
@@ -24,28 +20,13 @@ RECOMMENDATION_URL = '/api/recommendations/'
 
 @pytest.mark.django_db
 @pytest.mark.slow
-class TestContentBasedPipeline(TestCase):
+class TestContentBasedPipeline:
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(username='test', email='test@mail.com', password='StrongPass123!')
-        cls.action = Genre.objects.create(tmdb_id='28', name='Action')
-        cls.comedy = Genre.objects.create(tmdb_id='40', name='Comedy')
-        cls.drama = Genre.objects.create(tmdb_id='18', name='Drama')
+    def test_entire_content_based_flow(self, content_based_dataset):
+        user = content_based_dataset['user']
 
-        for i in range(1, 11):
-            movie = Movie.objects.create(tmdb_id=i + 100, title=f'Movie {i}')
-            movie.genres.add(cls.action, cls.comedy)
-        for i in range(1, 11):
-            movie = Movie.objects.create(tmdb_id=i + 200, title=f'Movie {i + 10}')
-            movie.genres.add(cls.action, cls.drama)
-        for i in range(1, 11):
-            movie = Movie.objects.create(tmdb_id=i + 300, title=f'Movie {i + 20}')
-            movie.genres.add(cls.comedy, cls.drama)
-
-    def test_entire_content_based_flow(self):
         client = APIClient()
-        client.force_authenticate(self.user)
+        client.force_authenticate(user)
 
         watchlisted_ids = {101, 102, 201, 202, 301}
         movies = Movie.objects.filter(tmdb_id__in=watchlisted_ids)
