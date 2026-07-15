@@ -23,9 +23,11 @@ def build_movie_vector(movie, master_genres):
         movie.genres.values_list('name', flat=True)
     )
 
-    for i, genre in enumerate(movie_genres):
-        if genre in master_genres:
-            vector[i] = 1
+    genre_to_index = {genre: idx for idx, genre in enumerate(master_genres)}
+
+    for genre in movie_genres:
+        if genre in genre_to_index:
+            vector[genre_to_index[genre]] = 1
 
     return vector
 
