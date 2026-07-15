@@ -14,7 +14,7 @@ def build_user_vector(user):
 
     cache_key = f'user_vector_{user.id}'
     user_vector = cache.get(cache_key)
-    if user_vector:
+    if user_vector is not None:
         return user_vector
 
     master_genres = get_master_genre_list()
