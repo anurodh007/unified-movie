@@ -21,8 +21,8 @@ class TestMovieTMDBFlow:
 
         assert not Movie.objects.filter(tmdb_id=tmdb_id).exists()
 
-        with patch('apps.movies.services.movie_service.cache') as mock_cache, \
-             patch('apps.movies.services.movie_service.get_movie_details', return_value=fake_movie_detail):
+        with patch('movies.services.movie_service.cache') as mock_cache, \
+             patch('movies.services.movie_service.get_movie_details', return_value=fake_movie_detail):
             mock_cache.get.return_value = None
             response = client.get(movie_detail_url(tmdb_id))
         
