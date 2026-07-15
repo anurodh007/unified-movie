@@ -187,3 +187,62 @@ class TestContentBasedSimilarity:
             mock_cache.get.return_value = fake
             result = calculate_similarity(user, np.zeros(3), {})
         assert result == fake
+
+
+
+"""
+rank_filter_recommendations
+"""
+@pytest.mark.django_db
+class TestRankFilterRecommendations:
+
+    def test_excludes_reviewed_movies(self, user, movie_factory, review_factory):
+        movie = movie_factory(tmdb_id=2500, title='Reviewed Film')
+        review_factory(user=user, movie=movie, rating=9)
+        scores = {
+            2500: {
+                'movie': movie,
+                'score': 0.85
+            }
+        }
+        result = rank_filter_recommendations(user, scores, limit=10)
+        assert all(r['tmdb_id'] != 2500 for r in result)
+
+    def test_excludes_watchlisted_movies(self, user, movie_factory, watchlist_factory):
+        movie = movie_factory(tmdb_id=5001, title='Watchlisted Film')
+        watchlist_factory(user=user, movie=movie)
+        scores = {
+            5001: {
+                'movie': movie,
+                'score': 0.72
+            }
+        }
+        result = rank_filter_recommendations(user, scores, limit=10)
+        assert all(r['tmdb_id'] != 5001 for r in result)
+
+    def test_respects_recommendation_limit(self, user, movie_factory):
+        import random
+        scores = {}
+        for i in range(20):
+            movie = movie_factory(tmdb_id=i + 100)
+            score = random.uniform(0.5, 0.99)
+            scores[i+100] = {
+                'movie': movie,
+                'score': score
+            }
+        result = rank_filter_recommendations(user, scores, limit=10)
+        assert len(result) <= 10
+
+    def test_sorts_results_by_similarity_desc(self, user, movie_factory):
+        scores = {
+            101: {
+                'movie': movie_factory(tmdb_id=101, title='Low Score'),
+                'score': 0.75
+            },
+            201: {
+                'movie': movie_factory(tmdb_id=201, title='High Score'),
+                'score': 0.95
+            }
+        }
+        result = rank_filter_recommendations(user, scores, limit=10)
+        assert result[0]['score'] > result[-1]['score']
