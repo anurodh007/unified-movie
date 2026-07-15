@@ -4,6 +4,7 @@ Shared fixtures for the recommendation tests
 
 import pytest
 import random
+from itertools import product
 from django.contrib.auth import get_user_model
 from movies.models import Movie, Genre
 from reviews.models import Review
@@ -56,10 +57,14 @@ def collab_dataset(db):
     users = User.objects.all()
     movies = Movie.objects.all()
 
-    for _ in range(100):
+    # Sample user, movie to ensure uniqueness
+    pairs = list(product(users, movies))
+    selected = rng.sample(pairs, 100)
+
+    for user, movie in selected:
         Review.objects.create(
-            user=rng.choice(users),
-            movie=rng.choice(movies),
+            user=user,
+            movie=movie,
             rating=rng.randint(1, 10)
         )
     
