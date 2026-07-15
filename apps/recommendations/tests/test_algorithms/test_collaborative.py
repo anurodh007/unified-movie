@@ -154,3 +154,34 @@ class TestPredictMovieRatings:
             mock_cache.get.return_value = fake
             result = predict_movie_ratings(user, {}, {})
         assert result == fake
+
+
+
+"""
+rank_recommendations
+"""
+@pytest.mark.django_db
+class TestRankRecommendations:
+
+    def test_cold_start_returns_empty(self):
+        result = rank_recommendations({})
+        assert result == []
+
+    def test_sorts_results_predicted_ratings_desc(self, movie_factory):
+        movie_factory(tmdb_id=101, title='Low')
+        movie_factory(tmdb_id=201, title='High')
+        predicted_ratings = {
+            101: 7.5,
+            201: 9.0
+        }
+        result = rank_recommendations(predicted_ratings)
+        assert result[0]['score'] > result[-1]['score']
+
+    def test_respects_recommendation_limits(self, movie_factory):
+        import random
+        predicted_ratings = {}
+        for i in range(20):
+            movie_factory(tmdb_id=1000 + i, title=f'Collab Movie {i + 1}')
+            predicted_ratings[1000 + i] = random.uniform(5.0, 10.0)
+        result = rank_recommendations(predicted_ratings, limit=10)
+        assert len(result) <= 10

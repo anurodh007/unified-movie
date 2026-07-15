@@ -12,4 +12,4 @@ def get_recommendations_collab(user, limit=10):
 
     predicted_ratings = predict_movie_ratings(user, user_matrix, similarity_scores, k=3)
 
-    return rank_recommendations(user, predicted_ratings, limit=limit)
+    return rank_recommendations(predicted_ratings, limit=limit)

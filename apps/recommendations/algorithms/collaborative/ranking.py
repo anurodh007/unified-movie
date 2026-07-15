@@ -1,7 +1,7 @@
 from movies.models import Movie
 
 
-def rank_recommendations(user, predicted_ratings, limit=10):
+def rank_recommendations(predicted_ratings, limit=10):
     """
     Sort prediction scores and return N recommendations
     """
