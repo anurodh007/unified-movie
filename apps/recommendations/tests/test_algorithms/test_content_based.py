@@ -81,3 +81,38 @@ class TestBuildAllMovieVectors:
             mock_cache.get.return_value = fake
             result = build_all_movie_vectors()
         assert result == fake
+
+
+
+"""
+build_user_vector
+"""
+@pytest.mark.django_db
+class TestBuildUserVector:
+    
+    TARGET_CACHE_STRING = 'recommendations.algorithms.content_based.user_vectors.cache'
+
+    def test_cold_start_returns_zero_vector(self, user, genre_factory):
+        genre_factory(tmdb_id=28, name='Action')
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            vector = build_user_vector(user)
+        assert np.all(vector == 0)
+
+    def test_user_vector_built_from_high_ratings(self, user, movie_factory, genre_factory, review_factory):
+        action = genre_factory(tmdb_id=28, name='Action')
+        movie = movie_factory(tmdb_id=101, title='Highly Rated', genres=[action])
+        review_factory(user=user, movie=movie, rating=9)
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            vector = build_user_vector(user)
+        assert np.any(vector > 0)
+
+    def test_user_vector_excludes_low_ratings(self, user, movie_factory, genre_factory, review_factory):
+        comedy = genre_factory(tmdb_id=40, name='Comedy')
+        movie = movie_factory(tmdb_id=201, title='Low Rated', genres=[comedy])
+        review_factory(user=user, movie=movie, rating=5)
+        with patch(self.TARGET_CACHE_STRING) as mock_cache:
+            mock_cache.get.return_value = None
+            vector = build_user_vector(user)
+        assert np.all(vector == 0)
