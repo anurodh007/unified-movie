@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+from whitenoise import WhiteNoise
+
 try:
     from config.env import env
     settings_module = env('DJANGO_SETTINGS_MODULE', default='config.settings')
@@ -19,3 +21,7 @@ except (ImportError, NameError):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 
 application = get_wsgi_application()
+
+# Forces Whitenoise to handle media files.
+application = WhiteNoise(application, root=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media/'))
+application.add_files(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media/'), prefix='media/')

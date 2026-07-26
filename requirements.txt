@@ -26,6 +26,7 @@ packaging==26.2
 pillow==12.1.1
 pluggy==1.6.0
 Pygments==2.20.0
+pygraphviz==2.0
 PyJWT==2.11.0
 pytest==9.1.1
 pytest-cov==7.1.0
@@ -40,3 +41,4 @@ sqlparse==0.5.5
 tzdata==2025.3
 uritemplate==4.2.0
 urllib3==2.6.3
+whitenoise==6.12.0
